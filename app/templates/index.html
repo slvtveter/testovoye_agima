@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI-ассистент команды</title>
+<link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="bg-glow"></div>
+
+  <main class="shell">
+    <header class="hero">
+      <div class="badge">
+        <span class="dot"></span>
+        AI Team Assistant
+      </div>
+      <h1>Спроси у команды AI</h1>
+      <p class="subtitle">Быстрые, конкретные ответы на рабочие вопросы — без воды.</p>
+    </header>
+
+    <section class="ask-card">
+      <label for="question" class="field-label">Ваш вопрос</label>
+      <textarea
+        id="question"
+        placeholder="Например: как лучше структурировать FastAPI-проект для нескольких сервисов?"
+        rows="3"
+      ></textarea>
+
+      <div class="actions-row">
+        <span id="charCount" class="char-count">0 / 2000</span>
+        <button id="askBtn" class="ask-btn">
+          <span class="btn-text">Спросить AI</span>
+          <span class="spinner" hidden></span>
+        </button>
+      </div>
+
+      <div id="errorBox" class="error-box" hidden></div>
+    </section>
+
+    <section id="answerSection" class="answer-card" hidden>
+      <div class="answer-header">
+        <div class="answer-title">
+          <span class="answer-icon">✦</span>
+          Ответ
+        </div>
+        <div class="answer-meta">
+          <span id="modelBadge" class="model-badge"></span>
+          <button id="copyBtn" class="copy-btn" title="Копировать ответ">
+            <span class="copy-icon">⧉</span>
+            Копировать
+          </button>
+        </div>
+      </div>
+      <div id="answerText" class="answer-text"></div>
+    </section>
+
+    <section class="history-section">
+      <h2 class="history-title">История последних запросов</h2>
+      <div id="historyList" class="history-list">
+        <p class="history-empty">Пока нет запросов — задайте первый вопрос выше.</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
