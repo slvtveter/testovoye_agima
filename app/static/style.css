@@ -299,8 +299,77 @@ textarea:focus {
 .answer-text {
   font-size: 15px;
   line-height: 1.65;
-  white-space: pre-wrap;
   color: var(--text);
+}
+
+.answer-text p {
+  margin: 0 0 12px;
+}
+
+.answer-text p:last-child {
+  margin-bottom: 0;
+}
+
+.answer-text ul, .answer-text ol {
+  margin: 0 0 12px;
+  padding-left: 22px;
+}
+
+.answer-text li {
+  margin-bottom: 4px;
+}
+
+.answer-text h1, .answer-text h2, .answer-text h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 18px 0 8px;
+  color: var(--text);
+}
+
+.answer-text h1:first-child,
+.answer-text h2:first-child,
+.answer-text h3:first-child {
+  margin-top: 0;
+}
+
+.answer-text strong {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.answer-text code {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 2px 6px;
+  font-size: 13px;
+  font-family: "SF Mono", Menlo, monospace;
+}
+
+.answer-text pre {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  overflow-x: auto;
+  margin: 0 0 12px;
+}
+
+.answer-text pre code {
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.answer-text a {
+  color: var(--accent);
+}
+
+.answer-text blockquote {
+  border-left: 3px solid var(--accent);
+  margin: 0 0 12px;
+  padding-left: 12px;
+  color: var(--text-dim);
 }
 
 .history-overlay {
@@ -378,12 +447,21 @@ textarea:focus {
 
 .history-item {
   border-top: 1px solid var(--border);
-  padding: 14px 0;
+  padding: 14px 10px;
+  margin: 0 -10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
 }
 
 .history-item:first-child {
   border-top: none;
-  padding-top: 0;
+}
+
+.history-item:hover,
+.history-item:focus-visible {
+  background: var(--surface-2);
+  outline: none;
 }
 
 .history-question {

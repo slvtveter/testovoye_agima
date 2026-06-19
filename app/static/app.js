@@ -69,23 +69,133 @@ function formatTime(isoString) {
   });
 }
 
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function inlineFormat(text) {
+  let result = escapeHtml(text);
+  result = result.replace(/`([^`]+)`/g, "<code>$1</code>");
+  result = result.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  result = result.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, "<em>$1</em>");
+  return result;
+}
+
+function renderMarkdown(raw) {
+  const lines = raw.replace(/\r\n/g, "\n").split("\n");
+  let html = "";
+  let inCode = false;
+  let codeBuffer = [];
+  let listType = null;
+  let listBuffer = [];
+  let paraBuffer = [];
+
+  const flushPara = () => {
+    if (paraBuffer.length) {
+      html += `<p>${inlineFormat(paraBuffer.join(" "))}</p>`;
+      paraBuffer = [];
+    }
+  };
+  const flushList = () => {
+    if (listType) {
+      html += `<${listType}>${listBuffer.map((item) => `<li>${inlineFormat(item)}</li>`).join("")}</${listType}>`;
+      listType = null;
+      listBuffer = [];
+    }
+  };
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+
+    if (trimmed.startsWith("```")) {
+      if (!inCode) {
+        flushPara();
+        flushList();
+        inCode = true;
+        codeBuffer = [];
+      } else {
+        html += `<pre><code>${escapeHtml(codeBuffer.join("\n"))}</code></pre>`;
+        inCode = false;
+      }
+      continue;
+    }
+    if (inCode) {
+      codeBuffer.push(line);
+      continue;
+    }
+
+    if (trimmed === "") {
+      flushPara();
+      flushList();
+      continue;
+    }
+
+    const headingMatch = trimmed.match(/^(#{1,3})\s+(.*)$/);
+    if (headingMatch) {
+      flushPara();
+      flushList();
+      const level = headingMatch[1].length;
+      html += `<h${level}>${inlineFormat(headingMatch[2])}</h${level}>`;
+      continue;
+    }
+
+    const ulMatch = trimmed.match(/^[-*]\s+(.*)$/);
+    const olMatch = trimmed.match(/^\d+\.\s+(.*)$/);
+
+    if (ulMatch) {
+      flushPara();
+      if (listType !== "ul") {
+        flushList();
+        listType = "ul";
+      }
+      listBuffer.push(ulMatch[1]);
+      continue;
+    }
+    if (olMatch) {
+      flushPara();
+      if (listType !== "ol") {
+        flushList();
+        listType = "ol";
+      }
+      listBuffer.push(olMatch[1]);
+      continue;
+    }
+
+    flushList();
+    paraBuffer.push(trimmed);
+  }
+
+  flushPara();
+  flushList();
+  if (inCode && codeBuffer.length) {
+    html += `<pre><code>${escapeHtml(codeBuffer.join("\n"))}</code></pre>`;
+  }
+
+  return html;
+}
+
 function renderAnswer(entry) {
-  answerText.textContent = entry.answer;
+  answerText.innerHTML = renderMarkdown(entry.answer);
   modelBadge.textContent = entry.model_used;
   answerSection.hidden = false;
   copyBtn.classList.remove("copied");
   copyBtn.innerHTML = '<span class="copy-icon">⧉</span> Копировать';
 }
 
+let lastHistoryItems = [];
+
 function renderHistory(items) {
+  lastHistoryItems = items;
   if (!items.length) {
     historyList.innerHTML = '<p class="history-empty">Пока нет запросов — задайте первый вопрос выше.</p>';
     return;
   }
   historyList.innerHTML = items
     .map(
-      (item) => `
-      <div class="history-item">
+      (item, index) => `
+      <div class="history-item" data-index="${index}" tabindex="0" role="button">
         <div class="history-question">${escapeHtml(item.question)}</div>
         <div class="history-answer">${escapeHtml(item.answer)}</div>
         <div class="history-time">${formatTime(item.created_at)} · ${escapeHtml(item.model_used)}</div>
@@ -95,11 +205,27 @@ function renderHistory(items) {
     .join("");
 }
 
-function escapeHtml(str) {
-  const div = document.createElement("div");
-  div.textContent = str;
-  return div.innerHTML;
+function openHistoryEntry(index) {
+  const entry = lastHistoryItems[index];
+  if (!entry) return;
+  renderAnswer(entry);
+  closeHistoryPanel();
+  answerSection.scrollIntoView({ behavior: "smooth", block: "start" });
 }
+
+historyList.addEventListener("click", (e) => {
+  const itemEl = e.target.closest(".history-item");
+  if (!itemEl) return;
+  openHistoryEntry(Number(itemEl.dataset.index));
+});
+
+historyList.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter" && e.key !== " ") return;
+  const itemEl = e.target.closest(".history-item");
+  if (!itemEl) return;
+  e.preventDefault();
+  openHistoryEntry(Number(itemEl.dataset.index));
+});
 
 async function loadHistory() {
   try {
