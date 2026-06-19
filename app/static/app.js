@@ -42,6 +42,14 @@ document.addEventListener("keydown", (e) => {
 questionEl.addEventListener("input", () => {
   const len = questionEl.value.length;
   charCountEl.textContent = `${len} / ${MAX_LEN}`;
+  charCountEl.classList.toggle("over-limit", len > MAX_LEN);
+
+  if (len > MAX_LEN) {
+    showError(`Превышен лимит символов: ${len} / ${MAX_LEN}. Сократите вопрос.`);
+  } else {
+    hideError();
+  }
+  askBtn.disabled = len > MAX_LEN;
 });
 
 function setLoading(isLoading) {
@@ -244,6 +252,10 @@ async function askQuestion() {
     showError("Введите вопрос перед отправкой.");
     return;
   }
+  if (question.length > MAX_LEN) {
+    showError(`Превышен лимит символов: ${question.length} / ${MAX_LEN}. Сократите вопрос.`);
+    return;
+  }
 
   hideError();
   setLoading(true);
@@ -257,7 +269,8 @@ async function askQuestion() {
 
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      throw new Error(data.detail || "Не удалось получить ответ. Попробуйте снова.");
+      const message = typeof data.detail === "string" ? data.detail : "Не удалось получить ответ. Попробуйте снова.";
+      throw new Error(message);
     }
 
     const entry = await res.json();
