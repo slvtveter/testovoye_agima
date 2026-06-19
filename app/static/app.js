@@ -9,8 +9,35 @@ const answerText = document.getElementById("answerText");
 const modelBadge = document.getElementById("modelBadge");
 const copyBtn = document.getElementById("copyBtn");
 const historyList = document.getElementById("historyList");
+const historyPanel = document.getElementById("historyPanel");
+const historyOverlay = document.getElementById("historyOverlay");
+const historyToggleBtn = document.getElementById("historyToggleBtn");
+const historyCloseBtn = document.getElementById("historyCloseBtn");
 
 const MAX_LEN = 2000;
+
+function openHistoryPanel() {
+  historyPanel.classList.add("open");
+  historyPanel.setAttribute("aria-hidden", "false");
+  historyOverlay.hidden = false;
+  requestAnimationFrame(() => historyOverlay.classList.add("visible"));
+}
+
+function closeHistoryPanel() {
+  historyPanel.classList.remove("open");
+  historyPanel.setAttribute("aria-hidden", "true");
+  historyOverlay.classList.remove("visible");
+  setTimeout(() => {
+    historyOverlay.hidden = true;
+  }, 250);
+}
+
+historyToggleBtn.addEventListener("click", openHistoryPanel);
+historyCloseBtn.addEventListener("click", closeHistoryPanel);
+historyOverlay.addEventListener("click", closeHistoryPanel);
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closeHistoryPanel();
+});
 
 questionEl.addEventListener("input", () => {
   const len = questionEl.value.length;

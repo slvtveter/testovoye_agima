@@ -45,8 +45,36 @@ html, body {
 }
 
 .hero {
+  position: relative;
   text-align: center;
   margin-bottom: 36px;
+}
+
+.history-toggle-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 9px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.history-toggle-btn:hover {
+  background: var(--surface-2);
+  border-color: var(--accent);
+}
+
+.history-toggle-icon {
+  font-size: 14px;
 }
 
 .badge {
@@ -95,7 +123,7 @@ html, body {
   margin: 0;
 }
 
-.ask-card, .answer-card, .history-section {
+.ask-card, .answer-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -275,10 +303,68 @@ textarea:focus {
   color: var(--text);
 }
 
+.history-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 6, 10, 0.6);
+  backdrop-filter: blur(2px);
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.history-overlay.visible {
+  opacity: 1;
+}
+
+.history-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(420px, 92vw);
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  z-index: 11;
+  padding: 22px;
+  overflow-y: auto;
+  transform: translateX(100%);
+  transition: transform 0.28s ease;
+  box-shadow: -20px 0 60px rgba(0, 0, 0, 0.4);
+}
+
+.history-panel.open {
+  transform: translateX(0);
+}
+
+.history-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.history-close-btn {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.history-close-btn:hover {
+  background: #1f2536;
+  border-color: var(--accent);
+}
+
 .history-title {
   font-size: 14px;
   font-weight: 700;
-  margin: 0 0 14px;
+  margin: 0;
   color: var(--text-dim);
   text-transform: uppercase;
   letter-spacing: 0.04em;

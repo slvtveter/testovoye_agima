@@ -11,6 +11,10 @@
 
   <main class="shell">
     <header class="hero">
+      <button id="historyToggleBtn" class="history-toggle-btn" title="Открыть историю запросов">
+        <span class="history-toggle-icon">☰</span>
+        История
+      </button>
       <div class="badge">
         <span class="dot"></span>
         AI Team Assistant
@@ -55,13 +59,18 @@
       <div id="answerText" class="answer-text"></div>
     </section>
 
-    <section class="history-section">
-      <h2 class="history-title">История последних запросов</h2>
-      <div id="historyList" class="history-list">
-        <p class="history-empty">Пока нет запросов — задайте первый вопрос выше.</p>
-      </div>
-    </section>
   </main>
+
+  <div id="historyOverlay" class="history-overlay" hidden></div>
+  <aside id="historyPanel" class="history-panel" aria-hidden="true">
+    <div class="history-panel-header">
+      <h2 class="history-title">История последних запросов</h2>
+      <button id="historyCloseBtn" class="history-close-btn" title="Закрыть">✕</button>
+    </div>
+    <div id="historyList" class="history-list">
+      <p class="history-empty">Пока нет запросов — задайте первый вопрос выше.</p>
+    </div>
+  </aside>
 
   <script src="/static/app.js"></script>
 </body>
