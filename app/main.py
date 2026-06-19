@@ -7,8 +7,15 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from app.database import init_db, save_query, get_last_queries
-from app.gemini_client import ask_ai, AllModelsExhaustedError
+from app.database import (
+    init_db,
+    save_query,
+    get_last_queries,
+    get_conversation_state,
+    update_conversation_state,
+    get_queries_after,
+)
+from app.gemini_client import ask_ai, summarize_history, AllModelsExhaustedError, CONTEXT_WINDOW
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
@@ -36,8 +43,20 @@ def ask(payload: AskRequest):
     if not question:
         raise HTTPException(status_code=400, detail="Вопрос не может быть пустым")
 
+    state = get_conversation_state()
+    unsummarized = get_queries_after(state["summarized_up_to_id"])
+
+    summary = state["summary"]
+    if len(unsummarized) > CONTEXT_WINDOW:
+        to_summarize = unsummarized[:-CONTEXT_WINDOW]
+        turns = unsummarized[-CONTEXT_WINDOW:]
+        summary = summarize_history(summary, to_summarize)
+        update_conversation_state(summary, to_summarize[-1]["id"])
+    else:
+        turns = unsummarized
+
     try:
-        result = ask_ai(question)
+        result = ask_ai(question, summary=summary, turns=turns)
     except AllModelsExhaustedError:
         raise HTTPException(
             status_code=503,
